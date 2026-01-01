@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -12,9 +13,10 @@ st.set_page_config(
 )
 
 # Fungsi untuk load data
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def load_data():
-    df = pd.read_csv('main_data.csv')
+    data_path = Path(__file__).parent / 'main_data.csv'
+    df = pd.read_csv(data_path)
     return df
 
 # Fungsi untuk kategorisasi berat
@@ -116,7 +118,7 @@ with tab1:
         st.subheader("Top 15 Kategori Produk")
         top_15 = filtered_df['product_category_name'].value_counts().head(15)
         
-        fig, ax = plt.subplots(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=(10, 6))
         colors = plt.cm.viridis(np.linspace(0, 0.8, 15))
         bars = ax.barh(range(len(top_15)), top_15.values, color=colors)
         ax.set_yticks(range(len(top_15)))
@@ -125,9 +127,6 @@ with tab1:
         ax.set_xlabel('Jumlah Produk')
         ax.set_title('Top 15 Kategori Produk')
         
-        for i, (bar, value) in enumerate(zip(bars, top_15.values)):
-            ax.text(value + 20, i, f'{value:,}', va='center')
-        
         st.pyplot(fig)
         plt.close()
     
@@ -135,10 +134,10 @@ with tab1:
         st.subheader("Distribusi Kategori Berat")
         weight_dist = filtered_df['weight_category'].value_counts()
         
-        fig, ax = plt.subplots(figsize=(10, 8))
+        fig, ax = plt.subplots(figsize=(10, 6))
         colors = plt.cm.Set3(np.linspace(0, 1, len(weight_dist)))
         ax.pie(weight_dist.values, labels=weight_dist.index, autopct='%1.1f%%',
-               colors=colors, explode=[0.02]*len(weight_dist))
+               colors=colors)
         ax.set_title('Distribusi Kategori Berat Produk')
         st.pyplot(fig)
         plt.close()
@@ -146,86 +145,33 @@ with tab1:
 with tab2:
     st.header("Analisis Korelasi: Jumlah Foto vs Karakteristik Fisik")
     
-    col1, col2 = st.columns(2)
+    st.subheader("Rata-rata Berat per Jumlah Foto")
+    photo_stats = filtered_df[filtered_df['product_photos_qty'] <= 10].groupby('product_photos_qty').agg({
+        'product_weight_g': 'mean'
+    })
     
-    with col1:
-        st.subheader("Rata-rata Berat per Jumlah Foto")
-        photo_stats = filtered_df[filtered_df['product_photos_qty'] <= 10].groupby('product_photos_qty').agg({
-            'product_weight_g': 'mean',
-            'product_volume_cm3': 'mean'
-        })
-        
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(photo_stats.index, photo_stats['product_weight_g'], color='steelblue', alpha=0.8)
-        ax.set_xlabel('Jumlah Foto Produk')
-        ax.set_ylabel('Rata-rata Berat (gram)')
-        ax.set_title('Rata-rata Berat Produk per Jumlah Foto')
-        st.pyplot(fig)
-        plt.close()
-    
-    with col2:
-        st.subheader("Heatmap Korelasi")
-        corr_cols = ['product_photos_qty', 'product_weight_g', 'product_length_cm', 
-                     'product_height_cm', 'product_width_cm', 'product_volume_cm3']
-        corr_matrix = filtered_df[corr_cols].corr()
-        
-        fig, ax = plt.subplots(figsize=(10, 8))
-        sns.heatmap(corr_matrix, annot=True, cmap='RdYlBu_r', center=0, 
-                    fmt='.3f', ax=ax, square=True,
-                    xticklabels=['Foto', 'Berat', 'Panjang', 'Tinggi', 'Lebar', 'Volume'],
-                    yticklabels=['Foto', 'Berat', 'Panjang', 'Tinggi', 'Lebar', 'Volume'])
-        ax.set_title('Matriks Korelasi')
-        st.pyplot(fig)
-        plt.close()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(photo_stats.index, photo_stats['product_weight_g'], color='steelblue', alpha=0.8)
+    ax.set_xlabel('Jumlah Foto Produk')
+    ax.set_ylabel('Rata-rata Berat (gram)')
+    ax.set_title('Rata-rata Berat Produk per Jumlah Foto')
+    st.pyplot(fig)
+    plt.close()
 
 with tab3:
     st.header("Clustering Produk Berdasarkan Karakteristik Fisik")
     
-    col1, col2 = st.columns(2)
+    st.subheader("Distribusi Cluster")
+    cluster_counts = filtered_df['product_cluster'].value_counts()
     
-    with col1:
-        st.subheader("Distribusi Cluster")
-        cluster_counts = filtered_df['product_cluster'].value_counts()
-        
-        fig, ax = plt.subplots(figsize=(10, 6))
-        colors = plt.cm.Set2(np.linspace(0, 1, len(cluster_counts)))
-        bars = ax.barh(cluster_counts.index, cluster_counts.values, color=colors)
-        ax.set_xlabel('Jumlah Produk')
-        ax.set_title('Distribusi Cluster Produk')
-        
-        for bar, value in zip(bars, cluster_counts.values):
-            ax.text(value + 50, bar.get_y() + bar.get_height()/2, 
-                    f'{value:,} ({value/len(filtered_df)*100:.1f}%)', va='center')
-        
-        st.pyplot(fig)
-        plt.close()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    colors = plt.cm.Set2(np.linspace(0, 1, len(cluster_counts)))
+    bars = ax.barh(cluster_counts.index, cluster_counts.values, color=colors)
+    ax.set_xlabel('Jumlah Produk')
+    ax.set_title('Distribusi Cluster Produk')
     
-    with col2:
-        st.subheader("Scatter Plot: Berat vs Volume")
-        sample_df = filtered_df.sample(min(2000, len(filtered_df)), random_state=42)
-        
-        fig, ax = plt.subplots(figsize=(10, 8))
-        cluster_colors = {'Cluster A: Ringan & Kompak': 'blue', 
-                          'Cluster B: Ringan & Besar': 'green',
-                          'Cluster C: Sedang & Kompak': 'orange', 
-                          'Cluster D: Sedang & Besar': 'red',
-                          'Cluster E: Berat': 'purple',
-                          'Cluster F: Lainnya': 'gray'}
-        
-        for cluster, color in cluster_colors.items():
-            cluster_data = sample_df[sample_df['product_cluster'] == cluster]
-            if len(cluster_data) > 0:
-                ax.scatter(cluster_data['product_weight_g'], cluster_data['product_volume_cm3'],
-                           c=color, label=cluster.split(':')[0], alpha=0.6, s=30)
-        
-        ax.set_xlabel('Berat Produk (gram)')
-        ax.set_ylabel('Volume Produk (cm³)')
-        ax.set_title('Scatter Plot: Berat vs Volume per Cluster')
-        ax.legend(loc='upper right')
-        ax.set_xlim(0, 15000)
-        ax.set_ylim(0, 100000)
-        st.pyplot(fig)
-        plt.close()
+    st.pyplot(fig)
+    plt.close()
 
 # Ringkasan Cluster
 st.markdown("---")
