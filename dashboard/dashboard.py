@@ -70,28 +70,19 @@ st.markdown("---")
 
 # Sidebar
 st.sidebar.header("🔧 Filter Data")
-selected_categories = st.sidebar.multiselect(
-    "Pilih Kategori Produk:",
-    options=df['product_category_name'].unique(),
-    default=df['product_category_name'].value_counts().head(5).index.tolist()
-)
+st.sidebar.markdown("Filter berlaku untuk **Tab Foto vs Berat** dan **Clustering**.")
 
 weight_range = st.sidebar.slider(
     "Rentang Berat Produk (gram):",
     min_value=int(df['product_weight_g'].min()),
     max_value=int(df['product_weight_g'].max()),
-    value=(0, 10000)
+    value=(int(df['product_weight_g'].min()), int(df['product_weight_g'].max()))
 )
 
-# Filter data
-if selected_categories:
-    filtered_df = df[df['product_category_name'].isin(selected_categories)]
-else:
-    filtered_df = df.copy()
-
-filtered_df = filtered_df[
-    (filtered_df['product_weight_g'] >= weight_range[0]) & 
-    (filtered_df['product_weight_g'] <= weight_range[1])
+# Filter data berdasarkan berat
+filtered_df = df[
+    (df['product_weight_g'] >= weight_range[0]) & 
+    (df['product_weight_g'] <= weight_range[1])
 ]
 
 # Metrics
@@ -116,10 +107,10 @@ with tab1:
     st.header("Pertanyaan 1: Kategori Produk dengan Jumlah Terbanyak")
     st.markdown("**Kategori produk apa yang memiliki jumlah item terbanyak, dan berapa persentase kontribusinya?**")
     
-    # Bar Chart - Top 15 Kategori
+    # Bar Chart - Top 15 Kategori (dari seluruh dataset)
     st.subheader("Top 15 Kategori Produk")
-    top_15 = filtered_df['product_category_name'].value_counts().head(15)
-    total_products = len(filtered_df)
+    top_15 = df['product_category_name'].value_counts().head(15)
+    total_products = len(df)
     percentages = (top_15 / total_products * 100).round(2)
     
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -146,9 +137,11 @@ with tab1:
     top_category = top_15.index[0]
     top_count = top_15.values[0]
     top_pct = percentages.values[0]
+    top_10_sum = df['product_category_name'].value_counts().head(10).sum()
     st.markdown(f"""
     - Kategori **{top_category}** merupakan kategori dengan jumlah produk terbanyak ({top_count:,} produk / {top_pct}%).
-    - Top 10 kategori mencakup sekitar **{(top_15.head(10).sum() / total_products * 100):.1f}%** dari total produk.
+    - Top 10 kategori mencakup sekitar **{(top_10_sum / total_products * 100):.1f}%** dari total produk.
+    - Total terdapat **{df['product_category_name'].nunique()}** kategori unik dalam dataset.
     - Distribusi produk terkonsentrasi pada kategori rumah tangga dan gaya hidup.
     """)
 
