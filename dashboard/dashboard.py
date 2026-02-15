@@ -137,12 +137,18 @@ with tab1:
     top_category = top_15.index[0]
     top_count = top_15.values[0]
     top_pct = percentages.values[0]
+    second_category = top_15.index[1]
+    second_pct = percentages.values[1]
+    third_category = top_15.index[2]
+    third_pct = percentages.values[2]
     top_10_sum = df['product_category_name'].value_counts().head(10).sum()
     st.markdown(f"""
-    - Kategori **{top_category}** merupakan kategori dengan jumlah produk terbanyak ({top_count:,} produk / {top_pct}%).
-    - Top 10 kategori mencakup sekitar **{(top_10_sum / total_products * 100):.1f}%** dari total produk.
-    - Total terdapat **{df['product_category_name'].nunique()}** kategori unik dalam dataset.
-    - Distribusi produk terkonsentrasi pada kategori rumah tangga dan gaya hidup.
+    - Kategori **{top_category}** merupakan kategori dengan jumlah produk terbanyak yaitu **{top_count:,} produk ({top_pct}%)** dari total {total_products:,} produk.
+    - Diikuti oleh **{second_category}** ({second_pct}%) dan **{third_category}** ({third_pct}%).
+    - **Top 10 kategori mencakup {(top_10_sum / total_products * 100):.2f}%** dari total produk, menunjukkan konsentrasi distribusi pada kategori tertentu.
+    - Total terdapat **{df['product_category_name'].nunique()}** kategori unik — platform e-commerce ini didominasi oleh kategori rumah tangga dan gaya hidup.
+    
+    **Rekomendasi:** Fokuskan strategi marketing dan inventori pada top 10 kategori untuk memaksimalkan revenue.
     """)
 
 with tab2:
@@ -231,11 +237,21 @@ with tab2:
     # Insight
     st.markdown("---")
     st.subheader("💡 Insight")
-    st.markdown("""
-    - Produk dengan kategori **Sangat Berat (> 5kg)** memiliki rata-rata jumlah foto tertinggi.
-    - Produk **Ringan (< 500g)** memiliki rata-rata jumlah foto terendah.
-    - Tren ini menunjukkan seller memahami bahwa produk besar/berat memerlukan lebih banyak dokumentasi visual.
-    - Mayoritas produk berada pada kategori Ringan dan Sedang.
+    
+    # Hitung rata-rata foto per kategori berat dari data lengkap
+    photo_insight = df.groupby('weight_category')['product_photos_qty'].mean()
+    photo_insight = photo_insight.reindex(weight_order)
+    
+    st.markdown(f"""
+    - Terdapat **tren positif** antara berat produk dengan jumlah foto:
+      - Ringan (< 500g): **{photo_insight.iloc[0]:.2f}** foto rata-rata
+      - Sedang (500g - 2kg): **{photo_insight.iloc[1]:.2f}** foto rata-rata
+      - Berat (2kg - 5kg): **{photo_insight.iloc[2]:.2f}** foto rata-rata
+      - Sangat Berat (> 5kg): **{photo_insight.iloc[3]:.2f}** foto rata-rata
+    - Produk **Sangat Berat (> 5kg)** memiliki rata-rata jumlah foto tertinggi, menunjukkan seller memahami bahwa produk besar memerlukan dokumentasi visual yang lebih lengkap.
+    - Mayoritas produk berada pada kategori **Ringan** dan **Sedang**, menunjukkan e-commerce ini lebih banyak menjual produk berukuran kecil hingga menengah.
+    
+    **Rekomendasi:** Tetapkan standar minimum jumlah foto berdasarkan kategori berat untuk meningkatkan kepercayaan dan konversi pembeli.
     """)
 
 with tab3:
@@ -293,10 +309,22 @@ with tab3:
     # Insight
     st.markdown("---")
     st.subheader("💡 Insight")
-    st.markdown("""
-    - **Cluster A (Ringan & Kompak)** merupakan cluster terbesar, mencakup produk-produk kecil.
-    - **Cluster E (Berat)** memiliki karakteristik fisik terbesar dengan rata-rata berat tertinggi.
-    - Clustering ini dapat digunakan untuk optimasi logistik dan strategi penetapan harga pengiriman.
+    
+    # Hitung persentase cluster dari data lengkap
+    cluster_full = df['product_cluster'].value_counts()
+    total_full = len(df)
+    
+    st.markdown(f"""
+    Produk berhasil dikelompokkan menjadi **5 cluster** berdasarkan kombinasi berat dan volume:
+    - **Cluster B (Ringan & Besar)** merupakan segmen terbesar ({cluster_full.get('Cluster B: Ringan & Besar', 0):,} produk / {cluster_full.get('Cluster B: Ringan & Besar', 0)/total_full*100:.1f}%).
+    - **Cluster D (Sedang & Besar)** menempati posisi kedua ({cluster_full.get('Cluster D: Sedang & Besar', 0):,} produk / {cluster_full.get('Cluster D: Sedang & Besar', 0)/total_full*100:.1f}%).
+    - **Cluster E (Berat)** memiliki rata-rata berat tertinggi ({cluster_full.get('Cluster E: Berat', 0):,} produk / {cluster_full.get('Cluster E: Berat', 0)/total_full*100:.1f}%).
+    - Mayoritas produk berada di Cluster B, ideal untuk pengiriman biaya rendah namun memerlukan ruang penyimpanan lebih besar.
+    
+    **Rekomendasi Operasional:**
+    1. **Gudang:** Alokasikan area penyimpanan terbesar untuk Cluster B dan D
+    2. **Pengiriman:** Negosiasi tarif khusus dengan kurir untuk setiap cluster
+    3. **Packaging:** Standardisasi kemasan per cluster untuk efisiensi biaya
     """)
 
 # Footer
