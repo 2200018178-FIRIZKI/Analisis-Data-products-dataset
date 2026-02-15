@@ -13,7 +13,7 @@ submission
 ├───Copy_of_Proyek_Analisis_Data.ipynb
 ├───README.md
 ├───requirements.txt
-└───url.txt (opsional - jika di-deploy ke Streamlit Cloud)
+└───url.txt
 ```
 
 ## Dataset
@@ -29,64 +29,157 @@ Dataset yang digunakan adalah **E-Commerce Public Dataset** yang berisi informas
 - `product_width_cm`: Lebar produk (cm)
 
 ## Pertanyaan Bisnis
-1. **Bagaimana distribusi kategori produk dalam dataset, dan kategori mana yang memiliki jumlah produk terbanyak?**
-2. **Apakah terdapat hubungan antara jumlah foto produk dengan karakteristik fisik produk (berat dan dimensi)?**
+1. **Kategori produk apa yang memiliki jumlah item terbanyak dalam dataset e-commerce, dan berapa persentase kontribusinya terhadap total keseluruhan produk?**
+2. **Bagaimana tren rata-rata jumlah foto produk berdasarkan kategori berat produk, dan apakah produk yang lebih berat cenderung memiliki lebih banyak foto?**
 
 ## Analisis Lanjutan
 - **Clustering Produk**: Mengelompokkan produk berdasarkan kombinasi berat dan volume ke dalam 5 cluster untuk optimasi logistik dan strategi penempatan.
 
-## Instalasi
+---
 
-### Prasyarat
-- Python 3.8 atau lebih tinggi
-- pip (Python package manager)
+## Setup Environment
 
-### Langkah Instalasi
-1. Clone atau download repository ini
-2. Buka terminal dan navigasi ke direktori proyek
-3. Install dependencies:
+### Menggunakan Anaconda (Recommended)
+
+1. **Buat environment baru:**
+```bash
+conda create --name ecommerce-analysis python=3.9
+```
+
+2. **Aktivasi environment:**
+```bash
+conda activate ecommerce-analysis
+```
+
+3. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-## Menjalankan Dashboard
+### Menggunakan venv (Python Virtual Environment)
 
-### Cara 1: Menjalankan di Local
-1. Buka terminal dan navigasi ke folder `dashboard`:
+1. **Buat virtual environment:**
+```bash
+python -m venv venv
+```
+
+2. **Aktivasi virtual environment:**
+
+   - **Windows:**
+   ```bash
+   venv\Scripts\activate
+   ```
+   
+   - **Mac/Linux:**
+   ```bash
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
+
+### Menggunakan Pipenv
+
+1. **Install pipenv (jika belum ada):**
+```bash
+pip install pipenv
+```
+
+2. **Install dependencies:**
+```bash
+pipenv install -r requirements.txt
+```
+
+3. **Aktivasi shell:**
+```bash
+pipenv shell
+```
+
+---
+
+## Menjalankan Dashboard Streamlit
+
+### Langkah-langkah:
+
+1. **Pastikan environment sudah aktif** (lihat bagian Setup Environment di atas)
+
+2. **Navigasi ke folder dashboard:**
 ```bash
 cd dashboard
 ```
 
-2. Jalankan aplikasi Streamlit:
+3. **Jalankan aplikasi Streamlit:**
 ```bash
 streamlit run dashboard.py
 ```
 
-3. Buka browser dan akses `http://localhost:8501`
+4. **Buka browser** dan akses URL yang ditampilkan di terminal (default: `http://localhost:8501`)
 
-### Cara 2: Akses Online (Jika sudah di-deploy)
-Kunjungi URL yang tercantum di file `url.txt`
+### Cara Alternatif (tanpa cd ke folder dashboard):
+```bash
+streamlit run dashboard/dashboard.py
+```
+
+---
+
+## Menjalankan Jupyter Notebook
+
+1. **Pastikan environment sudah aktif**
+
+2. **Jalankan Jupyter Notebook:**
+```bash
+jupyter notebook
+```
+
+3. **Buka file `Copy_of_Proyek_Analisis_Data.ipynb`** di browser
+
+---
 
 ## Fitur Dashboard
 - **Statistik Utama**: Menampilkan total produk, kategori, rata-rata berat, dan rata-rata foto
 - **Filter Interaktif**: Filter berdasarkan kategori produk dan rentang berat
-- **Visualisasi Distribusi**: Top 15 kategori produk dan distribusi kategori berat
-- **Analisis Korelasi**: Heatmap korelasi antara jumlah foto dan karakteristik fisik
-- **Clustering Produk**: Visualisasi dan ringkasan cluster produk
+- **Pertanyaan 1**: Visualisasi Top 15 kategori produk dengan persentase kontribusi
+- **Pertanyaan 2**: Visualisasi tren rata-rata jumlah foto berdasarkan kategori berat
+- **Analisis Lanjutan**: Visualisasi clustering produk berdasarkan karakteristik fisik
+
+---
 
 ## Hasil Analisis
-1. Kategori `cama_mesa_banho` merupakan kategori dengan jumlah produk terbanyak
-2. Terdapat korelasi positif lemah antara jumlah foto dengan karakteristik fisik produk
-3. Berhasil mengidentifikasi 5 cluster produk yang dapat digunakan untuk optimasi operasional
+
+### Pertanyaan 1: Distribusi Kategori Produk
+- Kategori `cama_mesa_banho` merupakan kategori dengan jumlah produk terbanyak (9.3% dari total)
+- Top 10 kategori mencakup sekitar 60% dari total produk
+- Distribusi terkonsentrasi pada kategori rumah tangga dan gaya hidup
+
+### Pertanyaan 2: Hubungan Foto dengan Berat Produk
+- Produk Sangat Berat (> 5kg) memiliki rata-rata jumlah foto tertinggi
+- Produk Ringan (< 500g) memiliki rata-rata jumlah foto terendah
+- Tren positif: semakin berat produk, semakin banyak foto
+
+### Analisis Lanjutan: Clustering
+- Berhasil mengidentifikasi 5 cluster utama produk
+- Cluster A (Ringan & Kompak) merupakan cluster terbesar
+- Cluster E (Berat) memiliki karakteristik fisik terbesar
+
+---
 
 ## Teknologi yang Digunakan
-- **Python**: Bahasa pemrograman utama
+- **Python 3.9+**: Bahasa pemrograman utama
 - **Pandas**: Manipulasi dan analisis data
 - **NumPy**: Komputasi numerik
-- **Matplotlib & Seaborn**: Visualisasi data
+- **Matplotlib**: Visualisasi data
 - **Streamlit**: Framework dashboard interaktif
+
+---
+
+## Requirements
+Lihat file `requirements.txt` untuk daftar lengkap dependencies.
+
+---
 
 ## Author
 **Shah Firizki Azmi**
-- Email: ipengi794@gmail.com
-- Dicoding ID: shah_firizki_azmi
+- Email: 2200018178@webmail.uad.ac.id
+- Dicoding ID: shah-firizki-azmi

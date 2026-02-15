@@ -1,4 +1,3 @@
-# URL Dashboard Streamlit (jika sudah di-deploy ke Streamlit Cloud)
-# Tambahkan URL di bawah ini setelah deployment:
+# URL Dashboard Streamlit 
 
-# https://your-app-name.streamlit.app
+# https://firizki-ecommerce-analysis.streamlit.app/
